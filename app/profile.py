@@ -18,9 +18,11 @@ from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 from pydantic import BaseModel, Field, ValidationError
+from sqlalchemy import select
 
 from . import events, llm
 from .config import get_settings
+from .db import LLMUsageRow, get_session
 from .models import (
     Evidence,
     Participation,
@@ -425,6 +427,24 @@ def _metadata_value(result: Any, name: str) -> int:
         return 0
 
 
+def _recorded_usage(cache_key: str) -> tuple[str | None, int, int]:
+    """Read usage persisted by :func:`app.llm.structured`, when available."""
+
+    try:
+        with get_session() as session:
+            row = session.scalar(
+                select(LLMUsageRow)
+                .where(LLMUsageRow.cache_key == cache_key)
+                .order_by(LLMUsageRow.id.desc())
+                .limit(1)
+            )
+        if row is None:
+            return None, 0, 0
+        return row.model, max(0, row.input_tokens), max(0, row.output_tokens)
+    except Exception:  # pragma: no cover - absent DB is valid for offline callers
+        return None, 0, 0
+
+
 def _configured_batch_model() -> str:
     try:
         return get_settings().llm_model_batch
@@ -625,6 +645,9 @@ def build_profile(
         ]
     evidence = list(result.evidence)
     fallback_tag = "[repo]" if selected_repos else "[registration]"
+    recorded_model, recorded_input, recorded_output = _recorded_usage(cache_key)
+    input_tokens = _metadata_value(raw_result, "input_tokens") or recorded_input
+    output_tokens = _metadata_value(raw_result, "output_tokens") or recorded_output
     profile = _profile(
         person=person,
         version=version,
@@ -636,9 +659,9 @@ def build_profile(
         reliability_value=reliability_value,
         summary=_summary_with_limit(result.summary, fallback_tag=fallback_tag),
         evidence=evidence,
-        model_used=_configured_batch_model(),
-        input_tokens=_metadata_value(raw_result, "input_tokens"),
-        output_tokens=_metadata_value(raw_result, "output_tokens"),
+        model_used=recorded_model or _configured_batch_model(),
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
     )
     _emit(
         run_id=run_id,
