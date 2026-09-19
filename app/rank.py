@@ -23,6 +23,7 @@ from pydantic import ValidationError
 from sqlalchemy import select
 
 from . import baseline, db, events
+from . import profile as profile_stage
 from .config import get_settings
 from .models import (
     Evidence,
@@ -582,24 +583,38 @@ def _fallback_original_work(repos: Sequence[RepoEvidence], today: date) -> float
 
 def _fallback_profile(person: Person, repos: Sequence[RepoEvidence], now: datetime) -> Profile:
     today = now.date()
-    original = _fallback_original_work(repos, today)
-    qualifying = [
-        repo
-        for repo in repos
-        if not bool(_value(repo, "is_fork", False))
-        and int(_number(_value(repo, "author_commits_total", 0))) >= 10
-    ]
-    recent_commits = sum(int(_number(_value(repo, "author_commits_90d", 0))) for repo in repos)
-    if not repos:
-        level = "none"
-    elif len(qualifying) >= 2 or recent_commits >= 50:
-        level = "strong"
-    elif qualifying:
-        level = "solid"
-    else:
-        level = "thin"
+    valid_repos = (
+        list(repos)
+        if _value(person, "github_login", None) and not _invalid_github(person)
+        else []
+    )
+    try:
+        # Keep the ranker's degraded path numerically aligned with the merged
+        # profile lane.  The local formula below remains a defensive fallback
+        # if an optional installation omits that helper module.
+        original = profile_stage.original_work_score(valid_repos)
+        level = profile_stage.evidence_level(valid_repos)
+    except Exception:  # pragma: no cover - defensive optional-lane fallback  # noqa: BLE001
+        original = _fallback_original_work(valid_repos, today)
+        qualifying = [
+            repo
+            for repo in valid_repos
+            if not bool(_value(repo, "is_fork", False))
+            and int(_number(_value(repo, "author_commits_total", 0))) >= 10
+        ]
+        recent_commits = sum(
+            int(_number(_value(repo, "author_commits_90d", 0))) for repo in valid_repos
+        )
+        if not valid_repos:
+            level = "none"
+        elif len(qualifying) >= 2 or recent_commits >= 50:
+            level = "strong"
+        elif qualifying:
+            level = "solid"
+        else:
+            level = "thin"
     evidence: list[Evidence] = []
-    for repo in sorted(repos, key=lambda item: _normalise(_value(item, "full_name", ""))):
+    for repo in sorted(valid_repos, key=lambda item: _normalise(_value(item, "full_name", ""))):
         observed = _repo_date(_value(repo, "last_push", None), today)
         source = _text(_value(repo, "html_url", "")) or "github"
         evidence.append(
@@ -611,7 +626,7 @@ def _fallback_profile(person: Person, repos: Sequence[RepoEvidence], now: dateti
                 observed_at=observed,
             )
         )
-    ai_values = [_clamp(_value(repo, "ai_relevance", 0.0)) for repo in repos]
+    ai_values = [_clamp(_value(repo, "ai_relevance", 0.0)) for repo in valid_repos]
     return Profile(
         person_id=person.id,
         version=1,
@@ -623,7 +638,7 @@ def _fallback_profile(person: Person, repos: Sequence[RepoEvidence], now: dateti
         reliability=None,
         summary=(
             "No external evidence; registration answers empty."
-            if not repos
+            if not valid_repos
             else "Deterministic profile from recorded GitHub evidence."
         ),
         evidence=evidence,
