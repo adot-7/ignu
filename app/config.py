@@ -83,7 +83,10 @@ class ScoringWeights(_YamlModel):
 class EligibilityRule(_YamlModel):
     name: str = ""
     pass_if_any: list[str] = Field(default_factory=list)
-    unknown_if: str | None = None
+    # Keep compatibility with the original scalar sample and the normalized
+    # list form used by the ranker configuration.  Both forms are valid YAML
+    # representations of the same predicate group.
+    unknown_if: str | list[str] | None = None
 
 
 class EligibilityConfig(_YamlModel):
