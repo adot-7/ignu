@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/private/
+data/cache/
+data/*.db
+.pytest_cache/
+.cognee_system/
+.data_storage/
+*.lance
+node_modules/

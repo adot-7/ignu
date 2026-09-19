@@ -1,0 +1,29 @@
+# Selection scoring. Everything here is visible on the dashboard "How we rank" panel — say so to judges.
+weights:
+  original_work: 0.45     # from RepoEvidence: non-fork, author commits, recency; 0 if no GitHub
+  reliability: 0.25       # check-in history from previous events; 0.5 (neutral) if unknown
+  ai_relevance: 0.15      # README/description relevance to the event theme, LLM-graded 0..1
+  trajectory: 0.15        # improvement between profile versions; 0.5 (neutral) if single version
+eligibility:
+  # hard gate before scoring. Any "fail" -> decision=decline with reason; any "unknown" -> needs_human
+  rules:
+    - name: professional_or_intern
+      pass_if_any:
+        - student_flag == false
+        - email_domain not in FREE_MAIL_DOMAINS
+        - answers mention internship
+      unknown_if: student_flag is null and email_domain in FREE_MAIL_DOMAINS
+thresholds:
+  admit: 0.62
+  waitlist: 0.45
+needs_human_when:
+  - evidence_level == "none" and eligibility == "unknown"
+  - any note with kind == "flag" exists for the person
+  - alias_of is not null           # merged duplicates get a human look
+baseline:
+  # Faithful reimplementation of the organizer's script. HUMANS: replace after asking the organizer today.
+  keywords: ["ai", "ml", "llm", "gpt", "agent", "rag", "langchain", "openai", "transformer"]
+  fields: [name, description, topics]
+  count_forks: true                # his script does not distinguish forks — that is the point we demonstrate
+disagreement_threshold: 100        # |baseline_rank - roster_rank| >= this -> shown in the table
+FREE_MAIL_DOMAINS: [gmail.com, yahoo.com, outlook.com, hotmail.com, icloud.com, proton.me, protonmail.com, yahoo.in, rediffmail.com]

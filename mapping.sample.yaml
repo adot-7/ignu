@@ -1,0 +1,26 @@
+# Column mapping contract. One file per source. Swapping Luma CSV -> organizer Excel -> Devfolio export
+# is a mapping change, not a code change. Column names are matched case-insensitively after trim.
+source_name: sample-hackathon-2026
+sheet: 0                         # xlsx sheet index or name; ignored for csv
+columns:
+  name: "Full Name"
+  email: "Email"
+  github:
+    column: "GitHub"
+    # any of these forms are normalised to a bare login:
+    # https://github.com/akash, github.com/akash/, @akash, akash
+    strip_prefixes: ["https://github.com/", "http://github.com/", "github.com/", "@"]
+  linkedin: "LinkedIn"           # stored as a link for humans; never fetched
+  org: "Company / College"
+  role: "Role"
+  student_flag:
+    column: "Are you a student?"
+    truthy: ["yes", "y", "true", "student"]
+  registered_at: "Registered At"   # optional
+  checked_in: "Checked In"         # optional; truthy -> reliability signal
+  answers:                         # free-text registration answers fed to the profile synthesiser
+    - "Why do you want to participate?"
+    - "What have you built?"
+    - "Skills"
+dedupe:
+  keys: [email, github]            # persons sharing any key are merged; the first row wins, others get alias_of
