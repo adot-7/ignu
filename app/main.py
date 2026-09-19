@@ -5,15 +5,19 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import threading
+import uuid
+from collections.abc import AsyncIterator
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, AsyncIterator
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, HTMLResponse
 from sse_starlette.sse import EventSourceResponse
 from starlette.staticfiles import StaticFiles
 
+from . import pipeline
 from .api_state import build_state
 from .db import init_db
 from .events import subscribe
@@ -75,6 +79,82 @@ async def events() -> EventSourceResponse:
 @app.get("/api/state")
 def api_state() -> dict[str, Any]:
     return build_state()
+
+
+def _run_request(payload: dict[str, Any], run_id: str) -> None:
+    """Execute an API-triggered run outside the request thread."""
+
+    settings = pipeline.get_settings()
+    source = payload.get("file") or settings.registrations_file
+    mapping = payload.get("mapping") or settings.mapping_file
+    event = payload.get("event") or settings.event_name
+    previous = payload.get("prev")
+    ids_value = payload.get("ids")
+    requested_ids = (
+        [str(value).strip() for value in ids_value if str(value).strip()]
+        if isinstance(ids_value, list)
+        else [value.strip() for value in str(ids_value).split(",") if value.strip()]
+        if ids_value
+        else None
+    )
+    n_value = payload.get("n")
+    try:
+        n = int(n_value) if n_value is not None else None
+    except (TypeError, ValueError):
+        n = None
+    try:
+        slow = max(0.0, float(payload.get("slow") or 0.0))
+    except (TypeError, ValueError):
+        slow = 0.0
+
+    if requested_ids is None and n is None:
+        pipeline.run(source, mapping, event, run_id=run_id, slow=slow, prev_file=previous)
+        return
+
+    people = pipeline.list_people()
+    if not people and Path(source).exists():
+        # Prepare the local person index without doing any external work; the
+        # following slice run performs the requested evidence/profile stages.
+        pipeline.run(source, mapping, event, person_ids=[], run_id=run_id, prev_file=previous)
+        people = pipeline.list_people()
+    selected = pipeline.select_demo_ids(
+        people,
+        n if n is not None else len(people),
+        requested_ids,
+    )
+    pipeline.run(
+        source,
+        mapping,
+        event,
+        person_ids=selected,
+        run_id=run_id,
+        slow=slow,
+        prev_file=previous,
+    )
+
+
+@app.post("/api/run", status_code=202)
+def api_run(payload: dict[str, Any] | None = None) -> dict[str, str]:
+    """Start a full or selected local pipeline run in a background thread."""
+
+    body = payload or {}
+    run_id = f"api-{uuid.uuid4().hex[:12]}"
+    thread = threading.Thread(
+        target=_run_request,
+        args=(body, run_id),
+        name=f"ignu-pipeline-{run_id}",
+        daemon=True,
+    )
+    thread.start()
+    return {"status": "started", "run_id": run_id}
+
+
+@app.post("/api/reset")
+def api_reset(payload: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Restore the latest full-prerun snapshot used by the demo reset button."""
+
+    event = (payload or {}).get("event")
+    return pipeline.reset_demo(str(event) if event else None)
 
 
 @app.get("/", response_model=None)
