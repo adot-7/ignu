@@ -35,14 +35,14 @@ def test_mapping_normalises_headers_values_urls_and_answers() -> None:
     assert person.registered_at is None
 
 
-def test_amendment_invalid_in_does_not_dedupe_and_same_names_stay_distinct(tmp_db) -> None:
+def test_amendment_merges_two_pairs_but_not_invalid_in_or_same_names(tmp_db) -> None:
     mapping = load("mapping.yaml")
     report = ingest_registrations(FIXTURES / "amendment.csv", mapping, "ignite")
 
-    assert report.rows == 7
-    assert report.with_github == 5
+    assert report.rows == 8
+    assert report.with_github == 6
     assert report.persons == 6
-    assert report.aliases == 1
+    assert report.aliases == 2
 
     with db.get_session() as session:
         people = list(session.scalars(select(db.PersonRow)).all())
@@ -55,9 +55,9 @@ def test_amendment_invalid_in_does_not_dedupe_and_same_names_stay_distinct(tmp_d
     assert len({person.id for person in invalid}) == 2
     assert len(same_name) == 2
     assert len({person.id for person in same_name}) == 2
-    assert len(aliases) == 1
-    assert aliases[0].alias_of
-    assert aliases[0].github_login == "repeat"
+    assert len(aliases) == 2
+    assert {alias.github_login for alias in aliases} == {"repeat", "second-repeat"}
+    assert len({alias.alias_of for alias in aliases}) == 2
 
     assert identity_id("Hemang Dutt", "Novara Labs", None) == invalid[0].id
 

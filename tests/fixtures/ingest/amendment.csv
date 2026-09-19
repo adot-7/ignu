@@ -5,4 +5,5 @@ Same,Name,https://linkedin.com/in/same-one,https://github.com/one,Example Org,En
 Same,Name,https://linkedin.com/in/same-two,https://github.com/two,Example Org,Engineer
 Alias,First,https://linkedin.com/in/alias-one,https://github.com/repeat,Example Org,Engineer
 Alias,Second,https://linkedin.com/in/alias-two,https://github.com/repeat,Example Org,Engineer
-,,https://linkedin.com/in/no-name,https://github.com/no-name,Example Org,Consultant
+Other,First,https://linkedin.com/in/other-one,https://github.com/second-repeat,Example Org,Engineer
+Other,Second,https://linkedin.com/in/other-two,https://github.com/second-repeat,Example Org,Engineer
