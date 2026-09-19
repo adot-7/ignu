@@ -201,7 +201,8 @@ def _create_message(
     response = _get_client().messages.create(**kwargs)
     _record_usage(response, model=model, tier=tier, cache_key=cache_key)
     if spend_usd() >= get_settings().llm_budget_usd:
-        raise BudgetExceeded("LLM budget exhausted after response")
+        # Do not discard a paid response; the pre-call guard refuses next time.
+        logger.warning("LLM budget reached after this response; further calls will refuse")
     return response
 
 
@@ -261,20 +262,31 @@ def chat_with_tools(
     tools: list[dict[str, Any]],
     *,
     tier: Tier = "agent",
+    system: str | None = None,
+    max_tokens: int = 600,
 ) -> Any:
-    """Run one ordinary Anthropic tool-capable message call."""
+    """Run one ordinary Anthropic tool-capable message call.
+
+    ``system`` is passed through as the Anthropic system prompt (the agent lane
+    needs it for the tool-only rules).  The budget is checked *before* the
+    call; a response that pushes spend over budget is still returned so paid
+    tokens are never discarded — the next call will refuse.
+    """
 
     _guard_budget()
     model = _model_for_tier(tier)
-    response = _get_client().messages.create(
-        model=model,
-        max_tokens=600,
-        messages=messages,
-        tools=tools,
-    )
+    kwargs: dict[str, Any] = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "messages": messages,
+        "tools": tools,
+    }
+    if system:
+        kwargs["system"] = system
+    response = _get_client().messages.create(**kwargs)
     _record_usage(response, model=model, tier=tier)
     if spend_usd() >= get_settings().llm_budget_usd:
-        raise BudgetExceeded("LLM budget exhausted after response")
+        logger.warning("LLM budget reached after this response; further calls will refuse")
     return response
 
 
