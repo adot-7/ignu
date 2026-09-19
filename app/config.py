@@ -78,11 +78,13 @@ class ScoringWeights(_YamlModel):
     reliability: float = 0.25
     ai_relevance: float = 0.15
     trajectory: float = 0.15
+    claim_consistency: float = 0.0
 
 
 class EligibilityRule(_YamlModel):
     name: str = ""
     pass_if_any: list[str] = Field(default_factory=list)
+    fail_if_all: list[str] = Field(default_factory=list)
     # Keep compatibility with the original scalar sample and the normalized
     # list form used by the ranker configuration.  Both forms are valid YAML
     # representations of the same predicate group.
@@ -90,6 +92,10 @@ class EligibilityRule(_YamlModel):
 
 
 class EligibilityConfig(_YamlModel):
+    professional_titles: list[str] = Field(default_factory=list)
+    intern_titles: list[str] = Field(default_factory=list)
+    student_titles: list[str] = Field(default_factory=list)
+    unknown_titles: list[str] = Field(default_factory=list)
     rules: list[EligibilityRule] = Field(default_factory=list)
 
 
@@ -111,6 +117,8 @@ class Scoring(_YamlModel):
     needs_human_when: list[str] = Field(default_factory=list)
     baseline: BaselineConfig = Field(default_factory=BaselineConfig)
     disagreement_threshold: int = 100
+    note_adjustments: dict[str, float | str] = Field(default_factory=dict)
+    llm_gating: dict[str, int | float | str | list[str]] = Field(default_factory=dict)
     free_mail_domains: list[str] = Field(
         default_factory=lambda: [
             "gmail.com",

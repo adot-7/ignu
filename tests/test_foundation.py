@@ -166,7 +166,43 @@ def test_yaml_loaders_are_typed() -> None:
         "org matches student_titles or org is a college",
     ]
     assert scoring.note_adjustments["flag"] == -0.25
+    assert scoring.note_adjustments["praise"] == pytest.approx(0.15)
+    assert scoring.note_adjustments["override"] == "force_human"
     assert scoring.llm_gating["max_profiles"] == 300
+    assert scoring.llm_gating["always_profile_top_n"] == 220
+    assert scoring.llm_gating["always_profile_decisions_near_threshold"] == pytest.approx(
+        0.08
+    )
+    assert scoring.llm_gating["skip_profile_when"] == [
+        "evidence_level == none and org is blank"
+    ]
+
+
+def test_dataset_scoring_fields_keep_legacy_defaults() -> None:
+    from app.config import Scoring
+
+    legacy = Scoring.model_validate(
+        {
+            "weights": {
+                "original_work": 0.45,
+                "reliability": 0.25,
+                "ai_relevance": 0.15,
+                "trajectory": 0.15,
+            },
+            "eligibility": {
+                "rules": [{"unknown_if": "student flag is missing"}],
+            },
+        }
+    )
+
+    assert legacy.weights.claim_consistency == 0.0
+    assert legacy.eligibility.professional_titles == []
+    assert legacy.eligibility.intern_titles == []
+    assert legacy.eligibility.student_titles == []
+    assert legacy.eligibility.unknown_titles == []
+    assert legacy.eligibility.rules[0].fail_if_all == []
+    assert legacy.note_adjustments == {}
+    assert legacy.llm_gating == {}
 
 
 def test_scoring_accepts_scalar_or_list_unknown_predicates() -> None:
