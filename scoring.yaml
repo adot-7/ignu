@@ -1,29 +1,80 @@
-# Selection scoring. Everything here is visible on the dashboard "How we rank" panel — say so to judges.
+# Selection scoring. Everything here is shown on the dashboard "How we rank" panel — say so to judges.
+#
+# REWRITTEN 14:05 after reading the organizers' real dataset (docs/04-DATASET.md).
+# It has NO check-in history, NO prior-event data and NO timestamps, so the original
+# `reliability` and profile-version `trajectory` components had no data behind them.
+# We do not ship weights we cannot evidence. What replaced them:
+#   - trajectory now comes from GitHub's OWN time series (commits per quarter), which is real
+#     temporal data and directly answers the PS's "how they behave over time".
+#   - claim_consistency compares the SELF-DECLARED job title/company against GitHub evidence.
+#     This is the one signal the organizer's keyword script cannot produce at all.
+#   - reliability is absent at t0 and enters ONLY through organizer notes (memory layer).
+#     That is the honest demonstration of a context layer that evolves.
+
 weights:
-  original_work: 0.45     # from RepoEvidence: non-fork, author commits, recency; 0 if no GitHub
-  reliability: 0.25       # check-in history from previous events; 0.5 (neutral) if unknown
-  ai_relevance: 0.15      # README/description relevance to the event theme, LLM-graded 0..1
-  trajectory: 0.15        # improvement between profile versions; 0.5 (neutral) if single version
+  original_work: 0.40      # non-fork, author commits, recency  (RepoEvidence, deterministic)
+  trajectory: 0.25         # GitHub commits per quarter over ~8 quarters: rising / flat / dormant
+  ai_relevance: 0.20       # README/description relevance to the event theme, LLM-graded 0..1
+  claim_consistency: 0.15  # self-declared role vs evidence; 0.5 = neutral/unknown, not a penalty
+
+# reliability has NO source column in this dataset. It is not a weighted component at t0.
+# When an organizer note asserts attendance/behaviour, rank applies it as a direct adjustment
+# (see note_adjustments) and the reason string cites the note. This is deliberate and demoable.
+note_adjustments:
+  flag: -0.25              # e.g. "no-showed at Bangalore", "left after lunch"
+  praise: +0.15            # e.g. "mentored well last time"
+  override: force_human    # organizer disagrees with us -> needs_human, never silently overridden
+
 eligibility:
-  # hard gate before scoring. Any "fail" -> decision=decline with reason; any "unknown" -> needs_human
+  # The event rule is: working professionals or people with prior internship experience.
+  # There is no email domain in this dataset, so role/org text is the only signal.
+  professional_titles: ["engineer", "developer", "sde", "swe", "founder", "cto", "ceo", "manager",
+                        "consultant", "analyst", "designer", "architect", "lead", "director",
+                        "scientist", "devops", "associate", "specialist", "head"]
+  intern_titles: ["intern", "internship", "trainee"]
+  student_titles: ["student", "undergrad", "fresher", "b.tech", "btech", "computer science engineering"]
+  unknown_titles: ["na", "n/a", "none", "-", ""]
   rules:
     - name: professional_or_intern
       pass_if_any:
-        - student_flag == false
-        - email_domain not in FREE_MAIL_DOMAINS
-        - answers mention internship
-      unknown_if: student_flag is null and email_domain in FREE_MAIL_DOMAINS
+        - role matches professional_titles and not student_flag
+        - role matches intern_titles          # prior internship experience satisfies the rule
+      fail_if_all:
+        - role matches student_titles
+        - org matches student_titles or org is a college
+      unknown_if:
+        - role matches unknown_titles
+        - role is blank
+
 thresholds:
   admit: 0.62
   waitlist: 0.45
+
 needs_human_when:
-  - evidence_level == "none" and eligibility == "unknown"
-  - any note with kind == "flag" exists for the person
-  - alias_of is not null           # merged duplicates get a human look
+  - eligibility == "unknown"
+  - evidence_level == "none"              # 9 rows have no GitHub at all; 2 more have an invalid one
+  - github_login_invalid                  # "https://github.com/in" — do not guess, ask
+  - duplicate_candidate                   # same login, or same name+org with different rows
+  - claim_consistency < 0.25              # declared senior role, no supporting evidence -> human reads it
+  - any note with kind == "flag" or kind == "override" exists
+
 baseline:
-  # Faithful reimplementation of the organizer's script. HUMANS: replace after asking the organizer today.
-  keywords: ["ai", "ml", "llm", "gpt", "agent", "rag", "langchain", "openai", "transformer"]
+  # Faithful reimplementation of the organizer's own script, for the disagreement table.
+  # HUMANS: replace keywords/fields the moment the organizer tells you what his script really does.
+  keywords: ["ai", "ml", "llm", "gpt", "agent", "rag", "langchain", "openai", "transformer",
+             "neural", "chatbot", "genai"]
   fields: [name, description, topics]
-  count_forks: true                # his script does not distinguish forks — that is the point we demonstrate
-disagreement_threshold: 100        # |baseline_rank - roster_rank| >= this -> shown in the table
+  count_forks: true          # his script does not distinguish forks — that is the point we demonstrate
+
+disagreement_threshold: 100  # |baseline_rank - ignu_rank| >= this -> shown in the table
+
+# LLM spend control for a 656-row file on a $7.50 total budget (see docs/04-DATASET.md §5).
+llm_gating:
+  # Deterministic scores are computed for EVERYONE (free). The LLM synthesis call runs only where
+  # it can change a decision. This is also the scalability answer for the mentoring round.
+  always_profile_top_n: 220            # by deterministic original_work_score
+  always_profile_decisions_near_threshold: 0.08   # within this band of admit/waitlist cutoffs
+  skip_profile_when: ["evidence_level == none and org is blank"]
+  max_profiles: 300
+
 FREE_MAIL_DOMAINS: [gmail.com, yahoo.com, outlook.com, hotmail.com, icloud.com, proton.me, protonmail.com, yahoo.in, rediffmail.com]

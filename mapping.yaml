@@ -1,0 +1,41 @@
+# Mapping for the organizers' PS-3 dataset: "Dataset for PS-3 (Ignite Room).csv"
+# 656 rows, 6 columns. NO email, NO registration answers, NO check-in, NO timestamps, NO prior event.
+# Place the file at data/private/registrations.csv (gitignored — it holds 656 real names + LinkedIn URLs).
+source_name: ignite-room-ps3
+sheet: 0
+
+# Identity: there is no email in this dataset.
+identity:
+  primary: github_login          # sha1(github_login.lower())[:12] when a VALID login exists
+  fallback: name_org             # else sha1(lower(name)|lower(org))[:12]
+  invalid_logins: ["in", "login", "home", "settings", "about"]   # reserved paths, not usernames
+
+columns:
+  # This dataset splits the name. Ingest joins non-empty parts with a single space.
+  name_parts: ["first_name", "last_name"]
+  name: ""                       # unused here; kept so single-column sources still work
+  email: ""                      # ABSENT in this source
+  github:
+    column: "What is your GitHub username?"
+    strip_prefixes:
+      - "https://github.com/"
+      - "http://github.com/"
+      - "https://www.github.com/"
+      - "github.com/"
+      - "@"
+  linkedin: "What is your LinkedIn profile?"
+  org: "What company do you work for? (if student then write your college name)"
+  role: "What is your job title?"
+  student_flag:
+    # No boolean column. Derive from role and org text (case-insensitive substring).
+    derive_from: ["What is your job title?", "What company do you work for? (if student then write your college name)"]
+    truthy: ["student", "undergrad", "b.tech", "btech", "college", "university student"]
+  registered_at: ""              # ABSENT
+  checked_in: ""                 # ABSENT
+  answers: []                    # ABSENT — no free-text registration answers in this source
+
+dedupe:
+  keys: [github]                 # email is absent; login is the only strong key
+  also_flag_same: [name, org]    # same name + same org, different/blank login -> flag for human, do NOT merge
+  # Two DIFFERENT people both submitted "https://github.com/in" (rows 389, 607).
+  # Never merge on an invalid login: treat as missing, keep separate, flag both.
