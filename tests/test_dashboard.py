@@ -12,12 +12,12 @@ def test_dashboard_keeps_only_the_supported_demo_surface() -> None:
     assert index.count('class="stage-card"') == 5
     for stage in ("ingest", "github", "profile", "graph", "rank"):
         assert f'data-stage="{stage}"' in index
-    for removed in ("Teams", "Memory", "chat-panel", "reset-demo", "person-drawer"):
+    for removed in ("Teams", "Memory", "How we rank", "chat-panel", "reset-demo", "person-drawer"):
         assert removed not in index
 
     assert 'fetchJson("/api/state")' in script
     assert 'new EventSource("/events")' in script
-    for removed in ("/ask", "/api/reset", "/api/person/", "renderTeams", "openDrawer", "chat"):
+    for removed in ("/ask", "/api/reset", "/api/person/", "renderTeams", "openDrawer", "renderRanking", "scoring", "chat"):
         assert removed not in script
-    for removed in ("chat-panel", "team-card", "person-drawer", "drawer-backdrop"):
+    for removed in ("chat-panel", "team-card", "person-drawer", "drawer-backdrop", "ranking-panel", "ranking-content", "weight-row", "thresholds", "rank-footnote"):
         assert removed not in styles
