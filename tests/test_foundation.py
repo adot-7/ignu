@@ -156,6 +156,17 @@ def test_yaml_loaders_are_typed() -> None:
     assert mapping.columns.student_flag.truthy == ["yes", "y", "true", "student"]
     assert scoring.baseline.count_forks is True
     assert scoring.free_mail_domains[0] == "gmail.com"
+    assert scoring.weights.claim_consistency == pytest.approx(0.15)
+    assert scoring.eligibility.professional_titles[0] == "engineer"
+    assert scoring.eligibility.intern_titles == ["intern", "internship", "trainee"]
+    assert scoring.eligibility.student_titles[0] == "student"
+    assert scoring.eligibility.unknown_titles[-1] == ""
+    assert scoring.eligibility.rules[0].fail_if_all == [
+        "role matches student_titles",
+        "org matches student_titles or org is a college",
+    ]
+    assert scoring.note_adjustments["flag"] == -0.25
+    assert scoring.llm_gating["max_profiles"] == 300
 
 
 def test_scoring_accepts_scalar_or_list_unknown_predicates() -> None:
