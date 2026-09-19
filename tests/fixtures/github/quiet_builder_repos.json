@@ -1,0 +1,38 @@
+[
+  {
+    "id": 101,
+    "name": "quiet-rag",
+    "full_name": "quiet-builder/quiet-rag",
+    "html_url": "https://github.com/quiet-builder/quiet-rag",
+    "fork": false,
+    "stargazers_count": 12,
+    "language": "Python",
+    "pushed_at": "2026-09-18T10:00:00Z",
+    "description": "A retrieval augmented generation service for local documents.",
+    "topics": ["rag", "retrieval", "python"]
+  },
+  {
+    "id": 102,
+    "name": "old-not-owned",
+    "full_name": "quiet-builder/old-not-owned",
+    "html_url": "https://github.com/quiet-builder/old-not-owned",
+    "fork": false,
+    "stargazers_count": 1,
+    "language": "JavaScript",
+    "pushed_at": "2026-08-01T10:00:00Z",
+    "description": "An old project with no commits by the registered author.",
+    "topics": ["web"]
+  },
+  {
+    "id": 103,
+    "name": "forked-template",
+    "full_name": "quiet-builder/forked-template",
+    "html_url": "https://github.com/quiet-builder/forked-template",
+    "fork": true,
+    "stargazers_count": 4,
+    "language": "Python",
+    "pushed_at": "2026-09-17T10:00:00Z",
+    "description": "A fork retained as provenance evidence.",
+    "topics": ["template"]
+  }
+]
