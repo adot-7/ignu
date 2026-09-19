@@ -48,18 +48,8 @@
               <a class="nav-item active" href="#overview"><span class="nav-icon">◈</span>Overview</a>
               <a class="nav-item" href="#pipeline"><span class="nav-icon">⌁</span>Pipeline</a>
               <a class="nav-item" href="#disagreements"><span class="nav-icon">≠</span>Disagreements <span class="nav-count" id="nav-disagreement-count">0</span></a>
-              <a class="nav-item" href="#teams"><span class="nav-icon">⌘</span>Teams</a>
               <a class="nav-item" href="#ranking"><span class="nav-icon">↗</span>How we rank</a>
             </nav>
-          </div>
-
-          <div class="sidebar-section sidebar-bottom">
-            <p class="nav-label">system</p>
-            <div class="system-card">
-              <span class="system-orb"><i></i></span>
-              <div><strong>local mode</strong><small>SQLite memory fallback</small></div>
-            </div>
-            <div class="source-note"><span class="source-dot"></span><span>Evidence-first decisions<br /><small>every claim has a source</small></span></div>
           </div>
         </aside>
 
@@ -72,7 +62,6 @@
             </div>
             <div class="heading-actions">
               <span class="last-run" id="last-run">No pipeline run yet</span>
-              <button class="button button-quiet" id="reset-demo" type="button"><span>↺</span> Reset demo</button>
             </div>
           </div>
 
@@ -87,8 +76,6 @@
               <article class="stage-card" data-stage="profile"><div class="stage-top"><span class="stage-number">03</span><span class="stage-state">idle</span></div><h3>Profile</h3><p>structured synthesis</p><div class="stage-counts"><span class="stage-ok">0 ok</span><span class="stage-skip">0 skip</span><span class="stage-error">0 err</span></div></article>
               <article class="stage-card" data-stage="graph"><div class="stage-top"><span class="stage-number">04</span><span class="stage-state">idle</span></div><h3>Graph</h3><p>relationships</p><div class="stage-counts"><span class="stage-ok">0 ok</span><span class="stage-skip">0 skip</span><span class="stage-error">0 err</span></div></article>
               <article class="stage-card" data-stage="rank"><div class="stage-top"><span class="stage-number">05</span><span class="stage-state">idle</span></div><h3>Rank</h3><p>verdict + reasons</p><div class="stage-counts"><span class="stage-ok">0 ok</span><span class="stage-skip">0 skip</span><span class="stage-error">0 err</span></div></article>
-              <article class="stage-card" data-stage="team"><div class="stage-top"><span class="stage-number">06</span><span class="stage-state">idle</span></div><h3>Teams</h3><p>skill coverage</p><div class="stage-counts"><span class="stage-ok">0 ok</span><span class="stage-skip">0 skip</span><span class="stage-error">0 err</span></div></article>
-              <article class="stage-card" data-stage="memory"><div class="stage-top"><span class="stage-number">07</span><span class="stage-state">idle</span></div><h3>Memory</h3><p>organizer context</p><div class="stage-counts"><span class="stage-ok">0 ok</span><span class="stage-skip">0 skip</span><span class="stage-error">0 err</span></div></article>
             </div>
           </section>
 
@@ -115,22 +102,9 @@
                 </table>
               </div>
             </section>
-          </div>
-
-          <div class="lower-grid">
-            <section class="panel teams-panel" id="teams" aria-labelledby="teams-title">
-              <div class="panel-heading compact">
-                <div><p class="kicker">04 / MATCHMAKING</p><h2 id="teams-title">Teams</h2></div>
-                <span class="tiny-label" id="team-summary">0 formed</span>
-              </div>
-              <div class="team-list" id="team-list">
-                <div class="empty-state compact-empty"><span class="empty-glyph">⌘</span><strong>No teams formed yet</strong><p>Admitted solos will appear with their coverage map.</p></div>
-              </div>
-            </section>
-
             <section class="panel ranking-panel" id="ranking" aria-labelledby="ranking-title">
               <div class="panel-heading compact">
-                <div><p class="kicker">05 / EXPLAINABILITY</p><h2 id="ranking-title">How we rank</h2></div>
+                <div><p class="kicker">04 / EXPLAINABILITY</p><h2 id="ranking-title">How we rank</h2></div>
                 <span class="tiny-label">scoring.yaml</span>
               </div>
               <div id="ranking-content">
@@ -139,31 +113,8 @@
             </section>
           </div>
         </main>
-
-        <aside class="chat-panel" aria-label="context assistant">
-          <div class="chat-header">
-            <div class="chat-title"><span class="assistant-mark">✦</span><div><p class="kicker">ASK THE LAYER</p><h2>Context assistant</h2></div></div>
-            <span class="chat-live"><i></i>sonnet</span>
-          </div>
-          <div class="chat-intro"><p>Ask about a person, a signal, or a team. Answers stay grounded in tool results.</p></div>
-          <div class="chat-history" id="chat-history" aria-live="polite">
-            <div class="chat-message assistant-message"><div class="message-avatar">✦</div><div class="message-body"><p>Ready when you are. Try <button class="prompt-chip" type="button" data-prompt="Who moved most between the baseline and ignu rank?">“who moved most?”</button></p><span class="message-time">now</span></div></div>
-          </div>
-          <form class="chat-form" id="chat-form">
-            <label class="sr-only" for="chat-question">Ask the context assistant</label>
-            <textarea id="chat-question" rows="3" placeholder="Ask a grounded question…" autocomplete="off"></textarea>
-            <div class="chat-form-footer"><span>↵ send</span><button class="send-button" type="submit" aria-label="Send question">↑</button></div>
-          </form>
-          <div class="chat-footnote"><span class="lock-mark">⌁</span> sources are attached to every person claim</div>
-        </aside>
       </div>
     </div>
-
-    <div class="drawer-backdrop" id="drawer-backdrop"></div>
-    <aside class="person-drawer" id="person-drawer" aria-label="person details" aria-hidden="true">
-      <div class="drawer-header"><div><p class="kicker">PERSON CONTEXT</p><h2 id="drawer-name">Participant</h2></div><button class="icon-button" id="drawer-close" type="button" aria-label="Close person details">×</button></div>
-      <div class="drawer-body" id="drawer-body"></div>
-    </aside>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script src="/static/app.js" defer></script>
