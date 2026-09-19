@@ -1,0 +1,61 @@
+Full Name,Email,GitHub,LinkedIn,Company / College,Role,Are you a student?,Registered At,Checked In,Why do you want to participate?,What have you built?,Skills
+Asha Demo,team.asha@example.org,adot-7,,Demo Labs,Engineer,no,2026-09-01T09:00:00Z,,Build useful tools,Context dashboard,backend
+Bhavesh Demo,team.bhavesh@example.org,IGNU_PLACEHOLDER_TEAM_2,,Demo Labs,Engineer,no,2026-09-01T09:01:00Z,,Meet builders,Event API,backend
+Charu Demo,team.charu@example.org,IGNU_PLACEHOLDER_TEAM_3,,Demo Labs,Designer,no,2026-09-01T09:02:00Z,,Make ideas clear,Product prototype,design_product
+Fork Farmer One,fork.one@example.org,fork-farmer-one,,Sample Works,Developer,no,2026-09-01T09:03:00Z,,Explore open source,Fork collection,ml_ai
+Fork Farmer Two,fork.two@example.org,fork-farmer-two,,Sample Works,Developer,no,2026-09-01T09:04:00Z,,Learn from projects,Fork collection,backend
+Quiet Builder,quiet.builder@example.org,quiet-builder,,Quiet Labs,Engineer,no,2026-09-01T09:05:00Z,,Ship reliable software,Original data service,backend
+Priya Professional,priya@acme-example.test,,,Acme Example,Engineer,no,2026-09-01T09:06:00Z,,Help teams collaborate,Internal workflow,backend
+Qasim Professional,qasim@orbit-example.test,,,Orbit Example,Manager,no,2026-09-01T09:07:00Z,,Support a strong cohort,Operations platform,devops_cloud
+Rhea Professional,rhea@nova-example.test,,,Nova Example,Designer,no,2026-09-01T09:08:00Z,,Share product lessons,Design system,design_product
+Samar Professional,samar@pixel-example.test,,,Pixel Example,Engineer,no,2026-09-01T09:09:00Z,,Find thoughtful peers,Analytics tool,data
+Student A,student.a@gmail.com,,,Demo College,Student,yes,2026-09-01T09:10:00Z,,Try a first hackathon,Course project,frontend
+Student B,student.b@gmail.com,,,Demo College,Student,yes,2026-09-01T09:11:00Z,,Practice with mentors,Mobile prototype,mobile
+Student C,student.c@gmail.com,,,Demo College,Student,yes,2026-09-01T09:12:00Z,,Learn applied AI,Study assistant,ml_ai
+Alias Demo One,alias.one@example.org,alias-demo,,Example Org,Engineer,no,2026-09-01T09:13:00Z,,Build with others,Search helper,data
+Alias Demo Two,alias.two@example.org,alias-demo,,Example Org,Engineer,no,2026-09-01T09:14:00Z,,Join the community,Search helper,data
+Rohan Sample,rohan.sample@example.org,,,Returning Labs,Engineer,no,2026-09-01T09:15:00Z,,Return to the room,Team tracker,backend
+Meera Sample,meera.sample@example.org,,,Returning Labs,Designer,no,2026-09-01T09:16:00Z,,Help a new team,Research notes,design_product
+Nikhil Sample,nikhil.sample@example.org,nikhil-sample,,Returning Labs,Developer,no,2026-09-01T09:17:00Z,,Build in public,API playground,backend
+Tara Demo,tara.demo@example.org,,,Fictional Studio,Engineer,no,2026-09-01T09:18:00Z,,Work on useful ideas,Recommendation mock,data
+Uma Demo,uma.demo@example.org,,,Fictional Studio,Engineer,no,2026-09-01T09:19:00Z,,Learn from peers,Cloud script,devops_cloud
+Varun Demo,varun.demo@example.org,varun-demo,,Fictional Studio,Engineer,no,2026-09-01T09:20:00Z,,Prototype responsibly,Agent notes,ml_ai
+Willa Demo,willa.demo@example.org,,,Fictional Studio,Writer,no,2026-09-01T09:21:00Z,,Tell a clear story,Pitch kit,pitch_comms
+Xena Demo,xena.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:22:00Z,,Try new APIs,Frontend shell,frontend
+Yash Demo,yash.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:23:00Z,,Build a small service,Queue worker,backend
+Zoya Demo,zoya.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:24:00Z,,Understand the data,Metrics notebook,data
+Aarav Demo,aarav.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:25:00Z,,Make cloud tools,Deployment helper,devops_cloud
+Bela Demo,bela.demo@example.org,,,Fictional Studio,Designer,no,2026-09-01T09:26:00Z,,Design for access,Mobile sketch,design_product
+Chet Demo,chet.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:27:00Z,,Explore model safety,Prompt notebook,ml_ai
+Dia Demo,dia.demo@example.org,,,Fictional Studio,Writer,no,2026-09-01T09:28:00Z,,Help explain technology,Demo script,pitch_comms
+Eli Demo,eli.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:29:00Z,,Learn web patterns,Landing page,frontend
+Fia Demo,fia.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:30:00Z,,Share backend ideas,Event service,backend
+Gautam Demo,gautam.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:31:00Z,,Use evidence well,Data importer,data
+Hema Demo,hema.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:32:00Z,,Make deploys easier,Release bot,devops_cloud
+Ishan Demo,ishan.demo@example.org,,,Fictional Studio,Designer,no,2026-09-01T09:33:00Z,,Improve user journeys,Journey map,design_product
+Jaya Demo,jaya.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:34:00Z,,Experiment with agents,Tool loop,ml_ai
+Karan Demo,karan.demo@example.org,,,Fictional Studio,Writer,no,2026-09-01T09:35:00Z,,Practice a concise pitch,Story board,pitch_comms
+Leela Demo,leela.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:36:00Z,,Build a clean UI,Component kit,frontend
+Mohan Demo,mohan.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:37:00Z,,Keep services dependable,Webhook service,backend
+Naina Demo,naina.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:38:00Z,,Find patterns in data,Survey analyzer,data
+Om Demo,om.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:39:00Z,,Automate operations,Cloud monitor,devops_cloud
+Pia Demo,pia.demo@example.org,,,Fictional Studio,Designer,no,2026-09-01T09:40:00Z,,Make a useful flow,Prototype board,design_product
+Quinn Demo,quinn.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:41:00Z,,Study responsible AI,Classifier demo,ml_ai
+Ravi Demo,ravi.demo@example.org,,,Fictional Studio,Writer,no,2026-09-01T09:42:00Z,,Help a team present,Demo outline,pitch_comms
+Sia Demo,sia.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:43:00Z,,Learn responsive design,Web layout,frontend
+Tejas Demo,tejas.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:44:00Z,,Build simple APIs,JSON service,backend
+Usha Demo,usha.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:45:00Z,,Measure product use,Event report,data
+Vik Demo,vik.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:46:00Z,,Make infra repeatable,Build pipeline,devops_cloud
+Wren Demo,wren.demo@example.org,,,Fictional Studio,Designer,no,2026-09-01T09:47:00Z,,Design a welcoming flow,Onboarding mock,design_product
+Xavi Demo,xavi.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:48:00Z,,Try retrieval methods,Search index,ml_ai
+Yara Demo,yara.demo@example.org,,,Fictional Studio,Writer,no,2026-09-01T09:49:00Z,,Explain a project,Readme draft,pitch_comms
+Zain Demo,zain.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:50:00Z,,Build a friendly site,Profile page,frontend
+Anya Demo,anya.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:51:00Z,,Connect event data,Registration API,backend
+Brij Demo,brij.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:52:00Z,,Learn from metrics,Dashboard query,data
+Cora Demo,cora.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:53:00Z,,Operate safely,Service checklist,devops_cloud
+Dev Demo,dev.demo@example.org,,,Fictional Studio,Designer,no,2026-09-01T09:54:00Z,,Make a clear screen,Wireframe set,design_product
+Esha Demo,esha.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:55:00Z,,Explore language tools,Text classifier,ml_ai
+Farid Demo,farid.demo@example.org,,,Fictional Studio,Writer,no,2026-09-01T09:56:00Z,,Tell the project story,Pitch notes,pitch_comms
+Gina Demo,gina.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:57:00Z,,Learn from feedback,Notes service,backend
+Hari Demo,hari.demo@example.org,,,Fictional Studio,Developer,no,2026-09-01T09:58:00Z,,Make evidence visible,Evidence table,data
+Ira Demo,ira.demo@example.org,,,Fictional Studio,Designer,no,2026-09-01T09:59:00Z,,Design a calm workflow,Review flow,design_product
