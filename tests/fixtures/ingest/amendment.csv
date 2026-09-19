@@ -1,0 +1,9 @@
+first_name,last_name,What is your LinkedIn profile?,What is your GitHub username?,What company do you work for? (if student then write your college name),What is your job title?
+Hemang,Dutt,https://linkedin.com/in/hemang,https://github.com/in,Novara Labs,SDE Intern
+Krish,Gaur,https://linkedin.com/in/krish,https://github.com/in,Demo College,ML Intern
+Same,Name,https://linkedin.com/in/same-one,https://github.com/one,Example Org,Engineer
+Same,Name,https://linkedin.com/in/same-two,https://github.com/two,Example Org,Engineer
+Alias,First,https://linkedin.com/in/alias-one,https://github.com/repeat,Example Org,Engineer
+Alias,Second,https://linkedin.com/in/alias-two,https://github.com/repeat,Example Org,Engineer
+Other,First,https://linkedin.com/in/other-one,https://github.com/second-repeat,Example Org,Engineer
+Other,Second,https://linkedin.com/in/other-two,https://github.com/second-repeat,Example Org,Engineer
