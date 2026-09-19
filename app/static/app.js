@@ -1,17 +1,7 @@
 (() => {
   "use strict";
 
-  const STAGES = ["ingest", "github", "profile", "graph", "rank", "team", "memory"];
-  const SKILLS = [
-    ["frontend", "Frontend"],
-    ["backend", "Backend"],
-    ["ml_ai", "ML / AI"],
-    ["data", "Data"],
-    ["mobile", "Mobile"],
-    ["devops_cloud", "DevOps"],
-    ["design_product", "Design"],
-    ["pitch_comms", "Pitch"],
-  ];
+  const STAGES = ["ingest", "github", "profile", "graph", "rank"];
   const DEFAULT_COUNTERS = {
     rows: 0,
     with_github: 0,
@@ -30,19 +20,10 @@
     spend: 0,
     budget: 6,
     disagreements: [],
-    teams: [],
     last_run: null,
     scoring: {},
   };
   const pipelineEvents = [];
-  const chatMessages = [
-    {
-      role: "assistant",
-      answer: "Ready when you are.",
-      prompt: "Who moved most between the baseline and ignu rank?",
-      time: "now",
-    },
-  ];
 
   let eventSource = null;
   let reconnectTimer = null;
@@ -109,7 +90,6 @@
     dashboardState.spend = asNumber(spend);
     dashboardState.budget = asNumber(payload.budget, dashboardState.budget || 6);
     dashboardState.disagreements = asArray(payload.disagreements);
-    dashboardState.teams = asArray(payload.teams);
     dashboardState.last_run = payload.last_run || null;
     dashboardState.scoring = payload.scoring && typeof payload.scoring === "object" ? payload.scoring : {};
   }
@@ -165,7 +145,6 @@
       : "No pipeline run yet";
 
     renderDisagreements();
-    renderTeams();
     renderRanking();
   }
 
@@ -235,12 +214,11 @@
     if (!event || typeof event !== "object") return;
     const stage = String(event.stage || "").toLowerCase();
     const status = String(event.status || "").toLowerCase();
-    if (STAGES.includes(stage)) {
-      const stats = stageStats[stage];
-      if (Object.prototype.hasOwnProperty.call(stats, status)) stats[status] += 1;
-      stats.last = status || stats.last;
-      renderStage(stage);
-    }
+    if (!STAGES.includes(stage)) return;
+    const stats = stageStats[stage];
+    if (Object.prototype.hasOwnProperty.call(stats, status)) stats[status] += 1;
+    stats.last = status || stats.last;
+    renderStage(stage);
     pipelineEvents.unshift(event);
     pipelineEvents.splice(15);
     if (event.run_id) {
@@ -286,40 +264,9 @@
       body.innerHTML = '<tr><td class="table-placeholder" colspan="5">No disagreement rows yet. The comparison appears after ranking.</td></tr>';
       return;
     }
-    body.innerHTML = rows.map((row, index) => {
+    body.innerHTML = rows.map((row) => {
       const reasons = asArray(row.reasons).slice(0, 2).join(" · ") || "rank movement";
-      const personId = escapeHtml(row.person_id || `row-${index}`);
-      return `<tr data-person-id="${personId}" tabindex="0" aria-label="Open ${escapeHtml(displayName(row.name))} details"><td>${escapeHtml(displayName(row.name))}</td><td class="rank-number">#${asNumber(row.baseline_rank)}</td><td class="rank-number">#${asNumber(row.ignu_rank)}</td><td class="gap-number">${asNumber(row.gap)}</td><td class="reason-cell" title="${escapeHtml(reasons)}">${escapeHtml(reasons)}</td></tr>`;
-    }).join("");
-  }
-
-  function memberNames(team) {
-    if (Array.isArray(team.members)) {
-      return team.members.map((member) => {
-        if (typeof member === "string") return member;
-        return member?.name || member?.id || "Unknown participant";
-      });
-    }
-    return asArray(team.member_ids).map((member) => String(member).slice(0, 12));
-  }
-
-  function renderTeams() {
-    const container = $("team-list");
-    const teams = dashboardState.teams;
-    $("team-summary").textContent = `${teams.length} formed`;
-    if (!teams.length) {
-      container.innerHTML = '<div class="empty-state compact-empty"><span class="empty-glyph">⌘</span><strong>No teams formed yet</strong><p>Admitted solos will appear with their coverage map.</p></div>';
-      return;
-    }
-    container.innerHTML = teams.map((team, index) => {
-      const coverage = team.coverage && typeof team.coverage === "object" ? team.coverage : {};
-      const memberMarkup = memberNames(team).map((name) => `<span class="member-chip">${escapeHtml(displayName(name))}</span>`).join("");
-      const coverageMarkup = SKILLS.map(([key, label]) => {
-        const value = Math.round(clamp(coverage[key]) * 100);
-        return `<div class="coverage-row"><span class="coverage-label">${escapeHtml(label)}</span><span class="coverage-track"><span class="coverage-fill" style="width:${value}%"></span></span><span class="coverage-value">${value}%</span></div>`;
-      }).join("");
-      const teamName = team.id || `team-${String(index + 1).padStart(2, "0")}`;
-      return `<article class="team-card"><div class="team-card-header"><span class="team-id">${escapeHtml(teamName)}</span><span class="team-balance">balance ${Math.round(clamp(team.balance) * 100)}%</span></div><div class="member-list">${memberMarkup || '<span class="member-chip">No members yet</span>'}</div><div class="coverage-list">${coverageMarkup}</div>${team.why ? `<p class="team-why">${escapeHtml(team.why)}</p>` : ""}</article>`;
+      return `<tr><td>${escapeHtml(displayName(row.name))}</td><td class="rank-number">#${asNumber(row.baseline_rank)}</td><td class="rank-number">#${asNumber(row.ignu_rank)}</td><td class="gap-number">${asNumber(row.gap)}</td><td class="reason-cell" title="${escapeHtml(reasons)}">${escapeHtml(reasons)}</td></tr>`;
     }).join("");
   }
 
@@ -345,154 +292,7 @@
     const baseline = scoring.baseline && typeof scoring.baseline === "object" ? scoring.baseline : {};
     const keywords = asArray(baseline.keywords);
     const threshold = scoring.disagreement_threshold;
-    container.innerHTML = `<div class="weights">${weightsMarkup || '<p class="drawer-empty">No component weights configured.</p>'}</div><div class="thresholds">${thresholdMarkup || '<div class="threshold"><span>thresholds</span><strong>—</strong></div>'}</div><p class="rank-footnote">Baseline watches <code>${keywords.length || 0} configured signals</code>${threshold !== undefined ? ` · disagreement at <code>${escapeHtml(threshold)}</code> ranks` : ""}.</p>`;
-  }
-
-  function normaliseSkills(profile) {
-    const source = profile?.skills;
-    if (Array.isArray(source)) {
-      return source.map((item) => ({
-        skill: item?.skill || item?.name || "skill",
-        confidence: clamp(item?.confidence ?? item?.score),
-      }));
-    }
-    if (source && typeof source === "object") {
-      return Object.entries(source).map(([skill, confidence]) => ({ skill, confidence: clamp(confidence) }));
-    }
-    return [];
-  }
-
-  function renderEvidence(evidence) {
-    const items = asArray(evidence);
-    if (!items.length) return '<p class="drawer-empty">No evidence attached yet.</p>';
-    return `<ul class="evidence-list">${items.map((item) => {
-      const url = item?.source_url || item?.url || "";
-      const claim = item?.claim || item?.text || "Observed signal";
-      const kind = item?.kind || "source";
-      const confidence = item?.confidence === undefined ? "" : ` · ${Math.round(clamp(item.confidence) * 100)}% confidence`;
-      const source = url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(url)}</a>` : `<span class="evidence-meta">source unavailable</span>`;
-      return `<li class="evidence-item">${source}<p>${escapeHtml(claim)}</p><span class="evidence-meta">${escapeHtml(kind)}${confidence}</span></li>`;
-    }).join("")}</ul>`;
-  }
-
-  function renderHistory(history) {
-    const items = asArray(history);
-    if (!items.length) return '<p class="drawer-empty">No prior verdicts recorded.</p>';
-    return `<ul class="history-list">${items.map((item) => `<li class="history-item"><span class="history-meta">${escapeHtml(item?.at || item?.ts || "recorded")}</span><p><strong>${escapeHtml(item?.decision || "verdict")}</strong>${item?.score === undefined ? "" : ` · score ${asNumber(item.score).toFixed(2)}`}${item?.reason ? ` · ${escapeHtml(item.reason)}` : ""}</p></li>`).join("")}</ul>`;
-  }
-
-  function renderDrawer(row, detail, errorMessage = "") {
-    const profile = detail?.profile || row?.profile || detail || {};
-    const verdict = detail?.verdict || row || {};
-    const name = detail?.person?.name || detail?.name || row?.name || "Participant";
-    $("drawer-name").textContent = displayName(name);
-    const skills = normaliseSkills(profile);
-    const skillMarkup = skills.length
-      ? `<div class="skill-list">${skills.map((item) => { const value = Math.round(item.confidence * 100); return `<div class="skill-row"><span>${escapeHtml(labelForWeight(item.skill))}</span><span class="skill-track"><span class="skill-fill" style="width:${value}%"></span></span><span class="skill-value">${value}%</span></div>`; }).join("")}</div>`
-      : '<p class="drawer-empty">Skills will appear after profile synthesis.</p>';
-    const evidence = profile.evidence || detail?.evidence || row?.evidence || [];
-    const history = detail?.verdict_history || detail?.history || row?.verdict_history || row?.history || [];
-    const badges = [profile.evidence_level, verdict.decision, verdict.eligibility].filter(Boolean).map((badge) => `<span class="detail-badge">${escapeHtml(badge)}</span>`).join("");
-    const score = verdict.score === undefined ? "" : `<span class="detail-badge">score ${asNumber(verdict.score).toFixed(2)}</span>`;
-    const profileSummary = profile.summary || detail?.summary || "No profile summary is available for this row yet.";
-    $("drawer-body").innerHTML = `${errorMessage ? `<div class="detail-section"><p class="drawer-empty">${escapeHtml(errorMessage)}</p></div>` : ""}<section class="detail-section"><p class="detail-label">Profile summary</p><p class="detail-summary">${escapeHtml(profileSummary)}</p><div class="detail-badges">${badges}${score}</div></section><section class="detail-section"><p class="detail-label">Skills</p>${skillMarkup}</section><section class="detail-section"><p class="detail-label">Evidence</p>${renderEvidence(evidence)}</section><section class="detail-section"><p class="detail-label">Verdict history</p>${renderHistory(history)}</section>`;
-  }
-
-  function openDrawer(row) {
-    const drawer = $("person-drawer");
-    drawer.classList.add("open");
-    drawer.setAttribute("aria-hidden", "false");
-    $("drawer-name").textContent = displayName(row.name);
-    $("drawer-body").innerHTML = '<div class="empty-state compact-empty"><span class="empty-glyph">⌁</span><strong>Loading context</strong><p>Gathering the attached profile and sources.</p></div>';
-    fetchJson(`/api/person/${encodeURIComponent(row.person_id)}`)
-      .then((detail) => renderDrawer(row, detail || {}))
-      .catch((error) => renderDrawer(row, null, error.status === 404 ? "Person detail is not available in this run yet." : "Person detail could not be loaded; showing the disagreement row."));
-  }
-
-  function closeDrawer() {
-    const drawer = $("person-drawer");
-    drawer.classList.remove("open");
-    drawer.setAttribute("aria-hidden", "true");
-  }
-
-  function markdownLite(value) {
-    return escapeHtml(value || "")
-      .replace(/`([^`]+)`/g, "<code>$1</code>")
-      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-      .replace(/\n/g, "<br>");
-  }
-
-  function renderSources(sources) {
-    const items = asArray(sources);
-    if (!items.length) return "";
-    const links = items.map((source) => {
-      const item = typeof source === "string" ? { url: source, label: source } : (source || {});
-      const url = item.url || item.source_url || "";
-      const label = item.label || item.title || item.claim || url || "source";
-      return url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a>` : `<span class="evidence-meta">${escapeHtml(label)}</span>`;
-    }).join("");
-    return `<div class="answer-sources"><span class="answer-sources-label">sources</span>${links}</div>`;
-  }
-
-  function renderChat() {
-    const history = $("chat-history");
-    history.innerHTML = chatMessages.map((message) => {
-      const user = message.role === "user";
-      const body = user ? escapeHtml(message.answer || "") : markdownLite(message.answer || "");
-      const prompt = message.prompt ? ` <button class="prompt-chip" type="button" data-prompt="${escapeHtml(message.prompt)}">“${escapeHtml(message.prompt.toLowerCase())}”</button>` : "";
-      const trace = !user && message.trace && asArray(message.trace).length ? `<details class="tool-trace"><summary>tool trace</summary><pre>${escapeHtml(JSON.stringify(message.trace, null, 2))}</pre></details>` : "";
-      const sources = !user ? renderSources(message.sources) : "";
-      return `<div class="chat-message ${user ? "user-message" : "assistant-message"}"><div class="message-avatar">${user ? "↗" : "✦"}</div><div class="message-body"><p class="${user ? "" : "answer-markdown"}">${body}${prompt}</p>${trace}${sources}<span class="message-time">${escapeHtml(message.time || "now")}</span></div></div>`;
-    }).join("");
-    history.scrollTop = history.scrollHeight;
-  }
-
-  async function submitQuestion(event) {
-    event.preventDefault();
-    const input = $("chat-question");
-    const button = document.querySelector(".send-button");
-    const question = input.value.trim();
-    if (!question || button.disabled) return;
-    chatMessages.push({ role: "user", answer: question, time: "now" });
-    input.value = "";
-    renderChat();
-    button.disabled = true;
-    try {
-      const payload = await fetchJson("/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, channel: "dashboard" }),
-      });
-      chatMessages.push({
-        role: "assistant",
-        answer: payload?.answer || payload?.message || "The agent returned no answer.",
-        trace: payload?.tool_trace || payload?.trace || payload?.tools,
-        sources: payload?.sources,
-        time: "now",
-      });
-    } catch (error) {
-      const answer = error.status === 404
-        ? "The context assistant is not connected yet. The pipeline view is still available."
-        : "I could not reach the context assistant. Try again after the next run.";
-      chatMessages.push({ role: "assistant", answer, time: "now" });
-      showToast(error.status === 404 ? "The /ask endpoint is not available yet." : "The assistant request failed.", true);
-    } finally {
-      button.disabled = false;
-      renderChat();
-    }
-  }
-
-  async function resetDemo() {
-    try {
-      await fetchJson("/api/reset", { method: "POST" });
-      pipelineEvents.splice(0);
-      STAGES.forEach((stage) => Object.assign(stageStats[stage], { ok: 0, skip: 0, error: 0, start: 0, last: "idle" }));
-      STAGES.forEach(renderStage);
-      await loadState();
-      showToast("Demo state reset.");
-    } catch (error) {
-      showToast(error.status === 404 ? "Reset is not available until the demo runner is installed." : "Reset could not be completed.", true);
-    }
+    container.innerHTML = `<div class="weights">${weightsMarkup || '<p class="empty-note">No component weights configured.</p>'}</div><div class="thresholds">${thresholdMarkup || '<div class="threshold"><span>thresholds</span><strong>—</strong></div>'}</div><p class="rank-footnote">Baseline watches <code>${keywords.length || 0} configured signals</code>${threshold !== undefined ? ` · disagreement at <code>${escapeHtml(threshold)}</code>` : ""}.</p>`;
   }
 
   function showToast(message, isError = false) {
@@ -504,41 +304,9 @@
     toastTimer = window.setTimeout(() => toast.classList.remove("visible"), 3600);
   }
 
-  function bindUi() {
-    $("chat-form").addEventListener("submit", submitQuestion);
-    $("reset-demo").addEventListener("click", resetDemo);
-    $("drawer-close").addEventListener("click", closeDrawer);
-    $("drawer-backdrop").addEventListener("click", closeDrawer);
-    $("disagreement-body").addEventListener("click", (event) => {
-      const row = event.target.closest("tr[data-person-id]");
-      if (!row) return;
-      const disagreement = dashboardState.disagreements.find((item) => String(item.person_id) === row.dataset.personId);
-      if (disagreement) openDrawer(disagreement);
-    });
-    $("disagreement-body").addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      const row = event.target.closest("tr[data-person-id]");
-      if (!row) return;
-      event.preventDefault();
-      const disagreement = dashboardState.disagreements.find((item) => String(item.person_id) === row.dataset.personId);
-      if (disagreement) openDrawer(disagreement);
-    });
-    $("chat-history").addEventListener("click", (event) => {
-      const prompt = event.target.closest("[data-prompt]");
-      if (!prompt) return;
-      $("chat-question").value = prompt.dataset.prompt || "";
-      $("chat-question").focus();
-    });
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeDrawer();
-    });
-  }
-
   function init() {
-    bindUi();
     renderState();
     renderFeed();
-    renderChat();
     STAGES.forEach(renderStage);
     void loadState();
     connectEvents();
