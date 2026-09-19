@@ -21,7 +21,6 @@
     budget: 6,
     disagreements: [],
     last_run: null,
-    scoring: {},
   };
   const pipelineEvents = [];
 
@@ -46,10 +45,6 @@
   function asNumber(value, fallback = 0) {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : fallback;
-  }
-
-  function clamp(value, minimum = 0, maximum = 1) {
-    return Math.max(minimum, Math.min(maximum, asNumber(value)));
   }
 
   function asArray(value) {
@@ -91,7 +86,6 @@
     dashboardState.budget = asNumber(payload.budget, dashboardState.budget || 6);
     dashboardState.disagreements = asArray(payload.disagreements);
     dashboardState.last_run = payload.last_run || null;
-    dashboardState.scoring = payload.scoring && typeof payload.scoring === "object" ? payload.scoring : {};
   }
 
   async function fetchJson(url, options = {}) {
@@ -145,7 +139,6 @@
       : "No pipeline run yet";
 
     renderDisagreements();
-    renderRanking();
   }
 
   function setConnectionState(isLive) {
@@ -268,31 +261,6 @@
       const reasons = asArray(row.reasons).slice(0, 2).join(" · ") || "rank movement";
       return `<tr><td>${escapeHtml(displayName(row.name))}</td><td class="rank-number">#${asNumber(row.baseline_rank)}</td><td class="rank-number">#${asNumber(row.ignu_rank)}</td><td class="gap-number">${asNumber(row.gap)}</td><td class="reason-cell" title="${escapeHtml(reasons)}">${escapeHtml(reasons)}</td></tr>`;
     }).join("");
-  }
-
-  function labelForWeight(key) {
-    return String(key).replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-  }
-
-  function renderRanking() {
-    const container = $("ranking-content");
-    const scoring = dashboardState.scoring || {};
-    const weights = scoring.weights && typeof scoring.weights === "object" ? scoring.weights : {};
-    const thresholds = scoring.thresholds && typeof scoring.thresholds === "object" ? scoring.thresholds : {};
-    const entries = Object.entries(weights).filter(([, value]) => Number.isFinite(Number(value)));
-    if (!entries.length && !Object.keys(thresholds).length) {
-      container.innerHTML = '<div class="empty-state compact-empty"><span class="empty-glyph">↗</span><strong>Scoring is loading</strong><p>Weights and thresholds will be shown here.</p></div>';
-      return;
-    }
-    const weightsMarkup = entries.map(([key, value]) => {
-      const percentage = Math.round(clamp(value, 0, 1) * 100);
-      return `<div class="weight-row"><span class="weight-name">${escapeHtml(labelForWeight(key))}</span><span class="weight-track"><span class="weight-fill" style="width:${percentage}%"></span></span><span class="weight-value">${percentage}%</span></div>`;
-    }).join("");
-    const thresholdMarkup = Object.entries(thresholds).map(([key, value]) => `<div class="threshold"><span>${escapeHtml(labelForWeight(key))}</span><strong>${asNumber(value).toFixed(2)}</strong></div>`).join("");
-    const baseline = scoring.baseline && typeof scoring.baseline === "object" ? scoring.baseline : {};
-    const keywords = asArray(baseline.keywords);
-    const threshold = scoring.disagreement_threshold;
-    container.innerHTML = `<div class="weights">${weightsMarkup || '<p class="empty-note">No component weights configured.</p>'}</div><div class="thresholds">${thresholdMarkup || '<div class="threshold"><span>thresholds</span><strong>—</strong></div>'}</div><p class="rank-footnote">Baseline watches <code>${keywords.length || 0} configured signals</code>${threshold !== undefined ? ` · disagreement at <code>${escapeHtml(threshold)}</code>` : ""}.</p>`;
   }
 
   function showToast(message, isError = false) {
