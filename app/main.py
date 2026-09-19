@@ -14,9 +14,10 @@ from fastapi.responses import FileResponse, HTMLResponse
 from sse_starlette.sse import EventSourceResponse
 from starlette.staticfiles import StaticFiles
 
+from .api_state import build_state
 from .db import init_db
 from .events import subscribe
-from .llm import spend_usd, verify_models
+from .llm import verify_models
 
 logger = logging.getLogger(__name__)
 
@@ -73,25 +74,7 @@ async def events() -> EventSourceResponse:
 
 @app.get("/api/state")
 def api_state() -> dict[str, Any]:
-    """Return an empty-safe shape consumed by the dashboard lane."""
-
-    return {
-        "counters": {
-            "rows": 0,
-            "with_github": 0,
-            "with_github_pct": 0.0,
-            "aliases": 0,
-            "admitted": 0,
-            "waitlist": 0,
-            "decline": 0,
-            "needs_human": 0,
-        },
-        "spend": spend_usd(),
-        "disagreements": [],
-        "teams": [],
-        "last_run": None,
-        "scoring": {},
-    }
+    return build_state()
 
 
 @app.get("/", response_model=None)
