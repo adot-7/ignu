@@ -1,0 +1,57 @@
+[
+  {
+    "name": "ai-copy-1",
+    "full_name": "fork-farmer/ai-copy-1",
+    "html_url": "https://github.com/fork-farmer/ai-copy-1",
+    "fork": true,
+    "stargazers_count": 0,
+    "language": "Python",
+    "pushed_at": "2026-09-18T10:00:00Z",
+    "description": "Forked AI example one.",
+    "topics": ["ai"]
+  },
+  {
+    "name": "ai-copy-2",
+    "full_name": "fork-farmer/ai-copy-2",
+    "html_url": "https://github.com/fork-farmer/ai-copy-2",
+    "fork": true,
+    "stargazers_count": 0,
+    "language": "Python",
+    "pushed_at": "2026-09-17T10:00:00Z",
+    "description": "Forked AI example two.",
+    "topics": ["ai"]
+  },
+  {
+    "name": "ai-copy-3",
+    "full_name": "fork-farmer/ai-copy-3",
+    "html_url": "https://github.com/fork-farmer/ai-copy-3",
+    "fork": true,
+    "stargazers_count": 0,
+    "language": "JavaScript",
+    "pushed_at": "2026-09-16T10:00:00Z",
+    "description": "Forked AI example three.",
+    "topics": ["ai"]
+  },
+  {
+    "name": "ai-copy-4",
+    "full_name": "fork-farmer/ai-copy-4",
+    "html_url": "https://github.com/fork-farmer/ai-copy-4",
+    "fork": true,
+    "stargazers_count": 0,
+    "language": "Go",
+    "pushed_at": "2026-09-15T10:00:00Z",
+    "description": "Forked AI example four.",
+    "topics": ["ai"]
+  },
+  {
+    "name": "ai-copy-5",
+    "full_name": "fork-farmer/ai-copy-5",
+    "html_url": "https://github.com/fork-farmer/ai-copy-5",
+    "fork": true,
+    "stargazers_count": 0,
+    "language": "Go",
+    "pushed_at": "2026-09-14T10:00:00Z",
+    "description": "Forked AI example five.",
+    "topics": ["ai"]
+  }
+]

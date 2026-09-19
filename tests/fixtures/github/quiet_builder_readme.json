@@ -1,0 +1,3 @@
+{
+  "text": "# Quiet RAG\n\n![build](https://img.shields.io/badge/build-passing-green)\n\n<p>A retrieval augmented generation pipeline for local documents.</p>\n\n<img src=\"architecture.svg\" alt=\"architecture\">\n\n- Uses retrieval and citations\n"
+}
