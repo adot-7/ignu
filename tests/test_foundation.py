@@ -158,6 +158,28 @@ def test_yaml_loaders_are_typed() -> None:
     assert scoring.free_mail_domains[0] == "gmail.com"
 
 
+def test_scoring_accepts_scalar_or_list_unknown_predicates() -> None:
+    from app.config import Scoring
+
+    scalar = Scoring.model_validate(
+        {"eligibility": {"rules": [{"unknown_if": "student flag is missing"}]}}
+    )
+    listed = Scoring.model_validate(
+        {
+            "eligibility": {
+                "rules": [
+                    {"unknown_if": ["student flag is missing", "free email domain"]}
+                ]
+            }
+        }
+    )
+    assert scalar.eligibility.rules[0].unknown_if == "student flag is missing"
+    assert listed.eligibility.rules[0].unknown_if == [
+        "student flag is missing",
+        "free email domain",
+    ]
+
+
 class _Result(BaseModel):
     answer: str
 
