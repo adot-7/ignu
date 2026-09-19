@@ -192,6 +192,8 @@ def test_structured_call_is_bounded_cached_and_versioned(
     assert second.version == 2
     assert second.reliability == pytest.approx(2 / 3)
     assert second.evidence == [source_evidence]
+    assert second.input_tokens == 0
+    assert second.output_tokens == 0
     assert [event.status for event in emitted] == ["start", "ok", "start", "ok"]
 
 
